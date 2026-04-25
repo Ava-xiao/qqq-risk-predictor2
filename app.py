@@ -147,8 +147,13 @@ with col_right:
     fig.update_layout(height=380, margin=dict(t=50, b=20, l=20, r=20), paper_bgcolor="#F9FAFB", font=dict(color="black"))
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown(f"<h2 style='text-align: center; color: {risk_color};'>{risk_text}</h2>", unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align: center; font-size: 0.9rem;'>Decision threshold = {threshold:.0%} (cost‑based optimization)</p>", unsafe_allow_html=True)
+    # 风险等级和阈值分行显示（增加操作建议）
+    st.markdown(f"<h2 style='text-align: center; color: {risk_color}; margin-bottom: 0.2rem;'>{risk_text}</h2>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align: center; font-size: 1rem; margin-top: 0rem; color: #4B5563;'>Decision threshold = {threshold:.0%} (cost‑based optimization)</p>", unsafe_allow_html=True)
+    if prob >= threshold:
+        st.markdown("<p style='text-align: center; font-size: 0.9rem; color: #D32F2F;'>⚠️ Suggested action: Reduce exposure or hedge</p>", unsafe_allow_html=True)
+    else:
+        st.markdown("<p style='text-align: center; font-size: 0.9rem; color: #2E7D32;'>✅ Suggested action: Maintain normal position</p>", unsafe_allow_html=True)
 
 # ================== Model Performance Summary ==================
 st.markdown("---")
@@ -168,20 +173,17 @@ st.markdown("Based on a 57‑week out‑of‑sample backtest (2025–2026)")
 
 image_path = "backtest_cumulative_return.png"
 if os.path.exists(image_path):
-    # 先展示图片（全宽）
+    # 图片全宽在上方
     st.image(image_path, caption="Blue: Buy & Hold | Orange: Model‑Based Strategy", use_column_width=True)
-    
-    # 然后在图片下方展示关键指标（使用4列卡片）
+    # 指标卡片在下方
     st.markdown("### Key Performance Indicators")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Annualised Return", "5.73%", delta="-9.38%", delta_color="inverse")
     col2.metric("Maximum Drawdown", "-2.27%", delta="+19.19%", delta_color="inverse")
     col3.metric("Sharpe Ratio", "1.00", delta="+0.28")
     col4.metric("Calmar Ratio", "2.53", delta="+1.82")
-    
     st.caption("Compared to Buy & Hold (QQQ). The model successfully avoided the sharp drawdown in April 2025.")
 else:
-    # 如果没有图片，仅展示指标卡片（保持原样）
     st.markdown("#### Key Performance Indicators (Backtest)")
     col_a, col_b, col_c, col_d = st.columns(4)
     col_a.metric("Max Drawdown", "-2.27%", delta="-19.19%", delta_color="inverse")
