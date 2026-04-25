@@ -182,15 +182,14 @@ st.markdown("Based on a 57‑week out‑of‑sample backtest (2025–2026)")
 
 image_path = "backtest_cumulative_return.png"
 if os.path.exists(image_path):
-    # 图片居中显示
-    col_img1, col_img2, col_img3 = st.columns([1, 2, 1])
-    with col_img2:
-        st.image(image_path, caption="Blue: Buy & Hold | Orange: Model‑Based Strategy", use_column_width=True)
-    # 指标卡片在图片下方
+    # 图片全宽显示（放大）
+    st.image(image_path, caption="Blue: Buy & Hold | Orange: Model‑Based Strategy", use_column_width=True)
+    
+    # 指标卡片在图片下方，使用英文标签避免乱码
     st.markdown("### Key Performance Indicators")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Annualised Return", "5.73%", delta="-9.38%", delta_color="inverse")
-    col2.metric("Maximum Drawdown", "-2.27%", delta="+19.19%", delta_color="inverse")
+    col2.metric("Max Drawdown", "-2.27%", delta="+19.19%", delta_color="inverse")
     col3.metric("Sharpe Ratio", "1.00", delta="+0.28")
     col4.metric("Calmar Ratio", "2.53", delta="+1.82")
     st.caption("Compared to Buy & Hold (QQQ). The model successfully avoided the sharp drawdown in April 2025.")
