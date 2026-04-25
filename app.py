@@ -180,26 +180,48 @@ st.markdown("---")
 st.markdown("## 💼 Investment Performance with Model Signals")
 st.markdown("Based on a 57‑week out‑of‑sample backtest (2025–2026)")
 
+# 定义指标数据
+# 每个元组: (指标名称, 模型值, 变化量, 变化是否为改善方向)
+# 改善方向：回撤降低、波动率降低、夏普和卡玛升高、收益率升高（但收益率下降，所以非改善）
+metrics_data = [
+    ("Maximum Drawdown", "-2.27%", "+19.19%", True),   # 回撤降低是好，变化为正
+    ("Sharpe Ratio", "1.00", "+0.28", True),
+    ("Calmar Ratio", "2.53", "+1.82", True),
+    ("Annualised Volatility", "5.71%", "-15.02%", True), # 波动率降低是好，变化为负但改善
+    ("Annualised Return", "5.73%", "-9.38%", False)      # 收益率降低是不好
+]
+
 image_path = "backtest_cumulative_return.png"
 if os.path.exists(image_path):
-    # 图片全宽显示（放大）
+    # 图片全宽显示
     st.image(image_path, caption="Blue: Buy & Hold | Orange: Model‑Based Strategy", use_column_width=True)
-    
-    # 指标卡片在图片下方，使用英文标签避免乱码
-    st.markdown("### Key Performance Indicators")
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Annualised Return", "5.73%", delta="-9.38%", delta_color="inverse")
-    col2.metric("Max Drawdown", "-2.27%", delta="+19.19%", delta_color="inverse")
-    col3.metric("Sharpe Ratio", "1.00", delta="+0.28")
-    col4.metric("Calmar Ratio", "2.53", delta="+1.82")
+    # 指标卡片
+    st.markdown("### Risk & Return Metrics (Model vs. Buy & Hold)")
+    cols = st.columns(5)
+    for i, (label, value, delta, is_improvement) in enumerate(metrics_data):
+        # 根据是否为改善设置颜色：改善绿色，非改善红色
+        delta_color = "normal" if is_improvement else "inverse"
+        # 注意：st.metric 的 delta_color 参数：如果 delta 为正，绿色；负则红色。通过正常/反转控制。
+        # 对于改善的情况：如果变化为正，直接用 normal；如果变化为负但改善（如波动率），需用 inverse。
+        # 这里简单处理：对于改善的指标，如果 delta 包含 '+' 符号，直接 normal；如果 delta 包含 '-' 但改善，用 inverse。
+        if is_improvement:
+            if delta.startswith('+'):
+                dc = "normal"
+            else:
+                dc = "inverse"
+        else:
+            # 非改善：收益下降，变化为负，希望显示红色，即 normal 会显示红色（因为delta负）？不对，delta负时 normal 显示红色，正是我们想要的
+            # 但收益下降是坏的，红色正确。
+            dc = "normal"
+        cols[i].metric(label, value, delta=delta, delta_color=dc)
     st.caption("Compared to Buy & Hold (QQQ). The model successfully avoided the sharp drawdown in April 2025.")
 else:
-    st.markdown("#### Key Performance Indicators (Backtest)")
-    col_a, col_b, col_c, col_d = st.columns(4)
-    col_a.metric("Max Drawdown", "-2.27%", delta="-19.19%", delta_color="inverse")
-    col_b.metric("Sharpe Ratio", "1.00", delta="+0.28")
-    col_c.metric("Calmar Ratio", "2.53", delta="+1.82")
-    col_d.metric("Annualised Return", "5.73%", delta="-9.38%")
+    # 没有图片时的备用显示
+    st.markdown("#### Risk & Return Metrics")
+    cols = st.columns(5)
+    for i, (label, value, delta, is_improvement) in enumerate(metrics_data):
+        dc = "normal" if is_improvement else "inverse"
+        cols[i].metric(label, value, delta=delta, delta_color=dc)
     st.caption("Compared to Buy & Hold (QQQ). The model successfully avoided the sharp drawdown in April 2025.")
 
 st.success("✅ The model‑based strategy avoids large drawdowns (e.g., April 2025) and delivers a **substantial improvement in risk‑adjusted returns** (Sharpe 0.73 → 1.00, Calmar 0.70 → 2.53).")
