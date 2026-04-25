@@ -166,29 +166,22 @@ st.markdown("---")
 st.markdown("## 💼 Investment Performance with Model Signals")
 st.markdown("Based on a 57‑week out‑of‑sample backtest (2025–2026)")
 
-# Try to show the cumulative return image if exists
 image_path = "backtest_cumulative_return.png"
 if os.path.exists(image_path):
-    col_ret, col_curve = st.columns([1, 2])
-    with col_ret:
-        st.markdown("### Key Metrics")
-        metrics = {
-            "Annualised Return": ("15.11%", "5.73%"),
-            "Maximum Drawdown": ("-21.46%", "-2.27%"),
-            "Sharpe Ratio": ("0.73", "1.00"),
-            "Calmar Ratio": ("0.70", "2.53"),
-            "Win Rate": ("52.6%", "12.3%"),
-        }
-        for metric, (bench, strat) in metrics.items():
-            st.markdown(f"**{metric}**  ")
-            st.markdown(f"📈 Buy & Hold: {bench}  ")
-            st.markdown(f"🛡️ Strategy: **{strat}**  ")
-            st.markdown("---")
-    with col_curve:
-        st.markdown("### Cumulative Return Curves")
-        st.image(image_path, caption="Blue: Buy & Hold | Orange: Model‑Based Strategy", use_column_width=True)
+    # 先展示图片（全宽）
+    st.image(image_path, caption="Blue: Buy & Hold | Orange: Model‑Based Strategy", use_column_width=True)
+    
+    # 然后在图片下方展示关键指标（使用4列卡片）
+    st.markdown("### Key Performance Indicators")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Annualised Return", "5.73%", delta="-9.38%", delta_color="inverse")
+    col2.metric("Maximum Drawdown", "-2.27%", delta="+19.19%", delta_color="inverse")
+    col3.metric("Sharpe Ratio", "1.00", delta="+0.28")
+    col4.metric("Calmar Ratio", "2.53", delta="+1.82")
+    
+    st.caption("Compared to Buy & Hold (QQQ). The model successfully avoided the sharp drawdown in April 2025.")
 else:
-    # Without image, just show key metrics in columns
+    # 如果没有图片，仅展示指标卡片（保持原样）
     st.markdown("#### Key Performance Indicators (Backtest)")
     col_a, col_b, col_c, col_d = st.columns(4)
     col_a.metric("Max Drawdown", "-2.27%", delta="-19.19%", delta_color="inverse")
@@ -198,7 +191,3 @@ else:
     st.caption("Compared to Buy & Hold (QQQ). The model successfully avoided the sharp drawdown in April 2025.")
 
 st.success("✅ The model‑based strategy avoids large drawdowns (e.g., April 2025) and delivers a **substantial improvement in risk‑adjusted returns** (Sharpe 0.73 → 1.00, Calmar 0.70 → 2.53).")
-
-# ================== Footer ==================
-st.markdown("---")
-st.caption("⚠️ This tool is for demonstration purposes only. Always perform your own due diligence before making investment decisions.")
