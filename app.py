@@ -117,8 +117,16 @@ X_new = pd.DataFrame([[
 
 prob = model.predict_proba(X_new)[0][1]
 threshold = 0.47
-risk_text = "High Risk (Recommended to hedge)" if prob >= threshold else "Low Risk (Normal position)"
-risk_color = "#D32F2F" if prob >= threshold else "#2E7D32"
+
+# 拆分风险文本为两行
+if prob >= threshold:
+    risk_line1 = "High Risk"
+    risk_line2 = "(Recommended to hedge)"
+    risk_color = "#D32F2F"
+else:
+    risk_line1 = "Low Risk"
+    risk_line2 = "(Normal position)"
+    risk_color = "#2E7D32"
 
 with col_right:
     st.markdown("## 📈 Prediction Result")
@@ -147,9 +155,10 @@ with col_right:
     fig.update_layout(height=380, margin=dict(t=50, b=20, l=20, r=20), paper_bgcolor="#F9FAFB", font=dict(color="black"))
     st.plotly_chart(fig, use_container_width=True)
 
-    # 风险等级和阈值分行显示（增加操作建议）
-    st.markdown(f"<h2 style='text-align: center; color: {risk_color}; margin-bottom: 0.2rem;'>{risk_text}</h2>", unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align: center; font-size: 1rem; margin-top: 0rem; color: #4B5563;'>Decision threshold = {threshold:.0%} (cost‑based optimization)</p>", unsafe_allow_html=True)
+    # 风险等级分行显示
+    st.markdown(f"<h2 style='text-align: center; color: {risk_color}; margin-bottom: 0.2rem;'>{risk_line1}</h2>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='text-align: center; color: {risk_color}; margin-top: 0rem;'>{risk_line2}</h3>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align: center; font-size: 1rem; color: #4B5563;'>Decision threshold = {threshold:.0%} (cost‑based optimization)</p>", unsafe_allow_html=True)
     if prob >= threshold:
         st.markdown("<p style='text-align: center; font-size: 0.9rem; color: #D32F2F;'>⚠️ Suggested action: Reduce exposure or hedge</p>", unsafe_allow_html=True)
     else:
@@ -173,9 +182,11 @@ st.markdown("Based on a 57‑week out‑of‑sample backtest (2025–2026)")
 
 image_path = "backtest_cumulative_return.png"
 if os.path.exists(image_path):
-    # 图片全宽在上方
-    st.image(image_path, caption="Blue: Buy & Hold | Orange: Model‑Based Strategy", use_column_width=True)
-    # 指标卡片在下方
+    # 图片居中显示
+    col_img1, col_img2, col_img3 = st.columns([1, 2, 1])
+    with col_img2:
+        st.image(image_path, caption="Blue: Buy & Hold | Orange: Model‑Based Strategy", use_column_width=True)
+    # 指标卡片在图片下方
     st.markdown("### Key Performance Indicators")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Annualised Return", "5.73%", delta="-9.38%", delta_color="inverse")
