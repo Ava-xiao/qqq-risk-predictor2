@@ -1,0 +1,12 @@
+[server]
+enableXsrfProtection = false
+enableCORS = false
+
+[browser]
+gatherUsageStats = false
+
+[global]
+developmentMode = false
+
+[runner]
+installTracer = false
